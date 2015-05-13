@@ -1,10 +1,11 @@
 package com.github.fe2s.zk
 
 import com.github.fe2s.Config
-import org.apache.curator.framework.CuratorFrameworkFactory
+import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.CreateMode
 
+import scala.Predef
 import scala.collection.JavaConversions._
 import scala.util.Random
 
@@ -52,15 +53,13 @@ object ZkServices {
 
   def buildSchema() = {
     println("(re)creating ZK schema")
-    val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-    val zk = CuratorFrameworkFactory.newClient(Config.zkConnectString, retryPolicy)
-    zk.start()
+    val zk = startZkClient()
 
     if (zk.checkExists().forPath(Root) != null) {
       zk.delete().deletingChildrenIfNeeded().forPath(Root)
     }
 
-    val a = (1 to Config.clientsNumber) map { id =>
+    (1 to Config.clientsNumber) map { id =>
       val clientId = s"client-$id"
       val appServerSlots = Random.nextInt(Config.maxAppServerSlots)
       zk.create().creatingParentsIfNeeded().forPath(new AppServerSlots(clientId), appServerSlots.toString.getBytes)
@@ -70,10 +69,12 @@ object ZkServices {
     }
   }
 
-  def registerAppServer(host: String, port: Int) = {
-    val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-    val zk = CuratorFrameworkFactory.newClient(Config.zkConnectString, retryPolicy)
-    zk.start()
+
+  /**
+   * register this app server and return db url
+   */
+  def registerAppServer(host: String, port: Int): Option[String] = {
+    val zk = startZkClient()
 
     println("looking for a client with free slots")
     val clients = zk.getChildren.forPath(Root)
@@ -88,11 +89,19 @@ object ZkServices {
     // register app server
     foundClient.map { clientId =>
       println(s"Found client $clientId with available slot(s) ... registering")
-      zk.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(new AppServer(clientId))
-    }.getOrElse(println("Clients with available slots not found"))
+      val serviceUrlData = s"http://$host:$port"
+      zk.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(new AppServer(clientId), serviceUrlData.getBytes)
 
-//    zk.blockUntilConnected()
+      val dbUrl = new String(zk.getData.forPath(new Db(clientId)))
+      dbUrl
+    }
   }
 
+  private def startZkClient(): CuratorFramework = {
+    val retryPolicy = new ExponentialBackoffRetry(1000, 3)
+    val zk = CuratorFrameworkFactory.newClient(Config.zkConnectString, retryPolicy)
+    zk.start()
+    zk
+  }
 
 }

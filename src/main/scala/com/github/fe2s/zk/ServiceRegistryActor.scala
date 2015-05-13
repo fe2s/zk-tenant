@@ -10,15 +10,12 @@ import com.github.fe2s.zk.ServiceRegistryMessages._
 class ServiceRegistryActor extends Actor {
 
   override def receive = {
-
-    case ServiceStarted(host, port) => {
+    case ServiceStarted(host, port) =>
       println(s"registering $host:$port")
-      ZkServices.registerAppServer(host, port)
-    }
+      val dbUrl = ZkServices.registerAppServer(host, port)
+      sender ! dbUrl
 
     case ServiceStopped => ???
-
   }
-
 
 }

@@ -6,7 +6,7 @@ package com.github.fe2s.zk
 object ServiceRegistryMessages {
 
   sealed trait Messages
-  case class ServiceStarted(host: String, port: Int)
-  case class ServiceStopped(host: String, port: Int)
+  case class ServiceStarted(host: String, port: Int) extends Messages
+  case class ServiceStopped(host: String, port: Int) extends Messages
 
 }
