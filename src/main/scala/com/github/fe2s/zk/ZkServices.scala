@@ -1,10 +1,12 @@
+package com.github.fe2s.zk
+
+import com.github.fe2s.Config
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.CreateMode
 
+import scala.collection.JavaConversions._
 import scala.util.Random
-
-import collection.JavaConversions._
 
 /**
  * @author Oleksiy_Dyagilev

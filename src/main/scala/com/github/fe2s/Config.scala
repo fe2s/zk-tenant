@@ -1,3 +1,5 @@
+package com.github.fe2s
+
 /**
  * @author Oleksiy_Dyagilev
  */
