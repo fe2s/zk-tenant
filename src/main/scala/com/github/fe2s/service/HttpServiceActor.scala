@@ -7,8 +7,6 @@ import spray.routing._
 
 class HttpServiceActor extends Actor with HttpService {
 
-  println("HttpServiceActor instance")
-
   def actorRefFactory = context
 
   def httpRoute(dbUrl: Option[String]) =

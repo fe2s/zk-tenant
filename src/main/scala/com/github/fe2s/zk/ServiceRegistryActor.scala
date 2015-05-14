@@ -11,7 +11,7 @@ class ServiceRegistryActor extends Actor {
 
   override def receive = {
     case ServiceStarted(host, port) =>
-      println(s"registering $host:$port")
+      println(s"registering service available at $host:$port")
       val dbUrl = ZkServices.registerAppServer(host, port)
       sender ! dbUrl
 

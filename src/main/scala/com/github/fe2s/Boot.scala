@@ -4,6 +4,8 @@ package com.github.fe2s
  * @author Oleksiy_Dyagilev
  */
 
+import java.net.{ServerSocket, InetAddress}
+
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import akka.pattern.ask
@@ -25,9 +27,8 @@ object Boot extends App {
   val service = system.actorOf(Props[HttpServiceActor], "demo-service")
   val serviceRegistry = system.actorOf(Props[ServiceRegistryActor], "service-registry")
 
-  // TODO: get interface, generate port
   val host = "localhost"
-  val port = 8080
+  val port = findAvailablePort()
 
   implicit val timeout = Timeout(15.seconds)
 
@@ -47,6 +48,9 @@ object Boot extends App {
       service ! HttpServiceConfig(dbUrl)
     }
   }
+
+  // subject for race conditions
+  def findAvailablePort(): Int = new ServerSocket(0).getLocalPort
 
 
 }

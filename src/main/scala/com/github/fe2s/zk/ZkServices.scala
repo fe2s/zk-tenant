@@ -64,7 +64,7 @@ object ZkServices {
       val appServerSlots = Random.nextInt(Config.maxAppServerSlots)
       zk.create().creatingParentsIfNeeded().forPath(new AppServerSlots(clientId), appServerSlots.toString.getBytes)
 
-      val dbUrl = "host:port"
+      val dbUrl = s"jdbc://db-client-$id:5555"
       zk.create().creatingParentsIfNeeded().forPath(new Db(clientId), dbUrl.getBytes)
     }
   }
