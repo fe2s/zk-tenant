@@ -4,7 +4,7 @@ package com.github.fe2s
  * @author Oleksiy_Dyagilev
  */
 
-import java.net.{ServerSocket, InetAddress}
+import java.net.ServerSocket
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
@@ -14,7 +14,6 @@ import com.github.fe2s.service.HttpServiceActor
 import com.github.fe2s.service.HttpServiceMessages.HttpServiceConfig
 import com.github.fe2s.zk.ServiceRegistryActor
 import com.github.fe2s.zk.ServiceRegistryMessages.ServiceStarted
-
 import spray.can.Http
 
 import scala.concurrent.duration._
@@ -28,7 +27,8 @@ object Boot extends App {
   val serviceRegistry = system.actorOf(Props[ServiceRegistryActor], "service-registry")
 
   val host = "localhost"
-  val port = findAvailablePort()
+//  val port = findAvailablePort()
+  val port = 8082
 
   implicit val timeout = Timeout(15.seconds)
 

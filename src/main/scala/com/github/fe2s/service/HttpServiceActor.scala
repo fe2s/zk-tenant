@@ -10,7 +10,7 @@ class HttpServiceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   def httpRoute(dbUrl: Option[String]) =
-    path("") {
+    pathSuffix("") {
       get {
         respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
           complete {
