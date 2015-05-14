@@ -7,6 +7,8 @@ import spray.routing._
 
 class HttpServiceActor extends Actor with HttpService {
 
+  println("HttpServiceActor instance")
+
   def actorRefFactory = context
 
   def httpRoute(dbUrl: Option[String]) =
@@ -24,13 +26,13 @@ class HttpServiceActor extends Actor with HttpService {
       }
     }
 
-  val handleMessage: Receive = {
+  val handleConfigMessage: Receive = {
     case HttpServiceConfig(dbUrl) =>
       println(s"Configuring HttpService with dbUrl $dbUrl")
-      val withConfigBehaviour = runRoute(httpRoute(Some(dbUrl))) orElse handleMessage
+      val withConfigBehaviour = runRoute(httpRoute(Some(dbUrl))) orElse handleConfigMessage
       context.become(withConfigBehaviour)
   }
 
-  def receive = runRoute(httpRoute(dbUrl =  None)) orElse handleMessage
+  def receive = runRoute(httpRoute(dbUrl =  None)) orElse handleConfigMessage
 }
 

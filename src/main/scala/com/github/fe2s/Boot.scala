@@ -29,16 +29,24 @@ object Boot extends App {
   val host = "localhost"
   val port = 8080
 
-  implicit val timeout = Timeout(5.seconds)
+  implicit val timeout = Timeout(15.seconds)
 
   IO(Http) ? Http.Bind(service, host, port)
 
+  Thread.sleep(1000)
+
   val dbUrlFuture = serviceRegistry ? ServiceStarted(host, port)
+
+  dbUrlFuture onFailure {
+    case t => println("Failed to get reply from service registry actor " + t)
+  }
 
   for (dbUrlOpt <- dbUrlFuture.mapTo[Option[String]]) yield {
     for (dbUrl <- dbUrlOpt) yield {
+      println("sending dbUrl " + dbUrl)
       service ! HttpServiceConfig(dbUrl)
     }
   }
+
 
 }
