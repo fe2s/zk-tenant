@@ -20,6 +20,12 @@ class ConfigBuilderTest extends Specification {
 
       conf mustEqual
         """
+          |defaults
+          |  mode http
+          |  timeout connect 5000ms
+          |  timeout client 50000ms
+          |  timeout server 50000ms
+          |
           |frontend http-in
           |  bind *:8080
           |  acl client-1-path path_beg /client-1

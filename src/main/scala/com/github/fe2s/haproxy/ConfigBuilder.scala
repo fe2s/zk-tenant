@@ -13,21 +13,19 @@ import scala.util.Properties.lineSeparator
 class ConfigBuilder {
 
   val defaults =
-    """
-      |defaults
-      |  mode http
-      |  timeout connect 5000ms
-      |  timeout client 50000ms
-      |  timeout server 50000ms
-    """.stripMargin
+    """|defaults
+          |  mode http
+          |  timeout connect 5000ms
+          |  timeout client 50000ms
+          |  timeout server 50000ms""".stripMargin
 
   def build(app: Application): String = {
-    frontend(app) + lineSeparator*2 + backends(app)
+    defaults + lineSeparator*2 + frontend(app) + lineSeparator*2 + backends(app)
   }
 
   private def frontend(app: Application): String = {
-    val header = """frontend http-in
-                   |  bind *:8080""".stripMargin
+    val header = """|frontend http-in
+                       |  bind *:8080""".stripMargin
 
     def acl(clientId: String) =
       s"|  acl $clientId-path path_beg /$clientId".stripMargin
@@ -44,7 +42,7 @@ class ConfigBuilder {
   private def backend(client: Client): String = {
     val header =
       s"""|backend ${client.id}-backend
-          |  balance roundrobin""".stripMargin
+             |  balance roundrobin""".stripMargin
 
     def server(hostPort: String) = s"|  server app $hostPort".stripMargin
 

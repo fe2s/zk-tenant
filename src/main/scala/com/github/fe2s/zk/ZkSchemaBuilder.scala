@@ -5,6 +5,7 @@ package com.github.fe2s.zk
  */
 object ZkSchemaBuilder extends App {
 
+  implicit val zk = ZkServices.startZkClient()
   ZkServices.buildSchema()
 
 }

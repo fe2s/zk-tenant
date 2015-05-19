@@ -27,8 +27,8 @@ object Boot extends App {
   val serviceRegistry = system.actorOf(Props[ServiceRegistryActor], "service-registry")
 
   val host = "localhost"
-//  val port = findAvailablePort()
-  val port = 8082
+  val port = findAvailablePort()
+//  val port = 8082
 
   implicit val timeout = Timeout(15.seconds)
 
