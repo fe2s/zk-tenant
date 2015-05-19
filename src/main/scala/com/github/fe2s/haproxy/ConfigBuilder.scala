@@ -20,7 +20,9 @@ class ConfigBuilder {
           |  timeout server 50000ms""".stripMargin
 
   def build(app: Application): String = {
-    defaults + lineSeparator*2 + frontend(app) + lineSeparator*2 + backends(app)
+    val appSorted = app.copy(clients = app.clients.sortBy(_.id))
+
+    defaults + lineSeparator*2 + frontend(appSorted) + lineSeparator*2 + backends(appSorted)
   }
 
   private def frontend(app: Application): String = {
