@@ -1,9 +1,10 @@
 package com.github.fe2s.zk
 
 import com.github.fe2s.Config
-import com.github.fe2s.zk.ZkModel.Domain.{Client, AppServer}
-import com.github.fe2s.zk.ZkUtils._
+import com.github.fe2s.zk.ZkModel.Domain.{AppServer, Application, Client}
+import com.github.fe2s.zk.ZkModel.Path._
 import com.github.fe2s.zk.ZkUtils.ShortCuts._
+import com.github.fe2s.zk.ZkUtils._
 import org.apache.curator.framework.api.CuratorEvent
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
@@ -11,7 +12,6 @@ import org.apache.zookeeper.CreateMode
 
 import scala.collection.JavaConversions._
 import scala.util.Random
-import ZkModel.Path._
 
 /**
  * @author Oleksiy_Dyagilev
@@ -62,14 +62,15 @@ object ZkServices {
     }
   }
 
-  def watch(): Unit = {
+  def watch(callback: Application => Any): Unit = {
     implicit val zk = startZkClient()
 
     val listener = (client: CuratorFramework, event: CuratorEvent) => {
-      println("event " + event)
+      println(Thread.currentThread() +  " event " + event)
       if (event.getPath != null) {
         zk.getChildren.watched().forPath(event.getPath)
-        println(readModel)
+        val currentModel = readModel()
+        callback(currentModel)
       }
       ()
     }
@@ -83,10 +84,14 @@ object ZkServices {
     clients.foreach { clientId =>
       watchClient(clientId)
     }
+
+    // block
+    this.synchronized(wait())
   }
 
-  private def readModel(implicit zk:CuratorFramework) =
-    for (clientId <- zk.getChildren.forPath(RootPath)) yield {
+  private def readModel()(implicit zk:CuratorFramework): Application = {
+    val clients =
+      for (clientId <- zk.getChildren.forPath(RootPath)) yield {
 
       val appServers =
         for (appServerId <- findClientAppServersIds(clientId)) yield {
@@ -97,6 +102,9 @@ object ZkServices {
       Client(clientId, appServers)
     }
 
+    Application(clients)
+  }
+
   private def findClientAppServersIds(clientId:String)(implicit zk:CuratorFramework) = {
     zk.getChildren.forPath(new ClientPath(clientId)).filter(_.startsWith(AppServerPrefixPath.nodePrefix))
   }
@@ -106,6 +114,7 @@ object ZkServices {
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
     val zk = CuratorFrameworkFactory.newClient(Config.zkConnectString, retryPolicy)
     zk.start()
+    zk.blockUntilConnected()
     zk
   }
 

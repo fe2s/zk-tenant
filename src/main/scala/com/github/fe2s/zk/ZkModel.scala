@@ -44,7 +44,15 @@ object ZkModel {
   }
 
   object Domain {
-    case class Application(clients:Seq[Client])
+    case class Application(clients:Seq[Client]){
+      def prettyPrint() = {
+        for (client <- clients) {
+          println("/" + client.id)
+          for (appServer <- client.appServers)
+            println("\t" + appServer.hostPort)
+        }
+      }
+    }
     case class Client(id:String, appServers:Seq[AppServer])
     case class AppServer(hostPort:String)
   }
