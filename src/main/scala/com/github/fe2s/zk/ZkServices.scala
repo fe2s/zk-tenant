@@ -45,7 +45,7 @@ object ZkServices {
     val clients = zk.getChildren.forPath(RootPath)
     val foundClient = clients.find { clientId =>
       val slots = new String(zk.getData.forPath(new AppServerSlotsPath(clientId))).toInt
-      val appServersNumber = zk.getChildren.forPath(new ClientPath(clientId)).count(_.startsWith(AppServerPrefixPath.nodePrefix))
+      val appServersNumber = findClientAppServersIds(clientId).size
       println(s"client $clientId slots $slots appServersNumber $appServersNumber")
       slots > appServersNumber
     }
@@ -89,13 +89,17 @@ object ZkServices {
     for (clientId <- zk.getChildren.forPath(RootPath)) yield {
 
       val appServers =
-        for (appServerId <- zk.getChildren.forPath(new ClientPath(clientId)) if appServerId.startsWith(AppServerPrefixPath.nodePrefix)) yield {
+        for (appServerId <- findClientAppServersIds(clientId)) yield {
           val hostPort = zk.getData.forPath(new AppServerPath(clientId, appServerId))
           AppServer(new String(hostPort))
         }
 
       Client(clientId, appServers)
     }
+
+  private def findClientAppServersIds(clientId:String)(implicit zk:CuratorFramework) = {
+    zk.getChildren.forPath(new ClientPath(clientId)).filter(_.startsWith(AppServerPrefixPath.nodePrefix))
+  }
 
 
   private def startZkClient(): CuratorFramework = {
