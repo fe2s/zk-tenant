@@ -20,7 +20,7 @@ object ZkServices {
 
   def startZkClient(): CuratorFramework = {
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-    val zk = CuratorFrameworkFactory.newClient(Config.zkConnectString, retryPolicy)
+    val zk = CuratorFrameworkFactory.newClient(Config.zkConnectString, 500, 3000, retryPolicy)
     zk.start()
     zk.blockUntilConnected()
     zk
