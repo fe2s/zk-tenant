@@ -5,7 +5,7 @@ package com.github.fe2s
  */
 object Config {
 
-  val clientsNumber = 6
+  val clientsNumber = 3
   val maxAppServerSlots = 3
   val zkConnectString = "localhost:2181"
 

@@ -4,7 +4,7 @@ package com.github.fe2s
  * @author Oleksiy_Dyagilev
  */
 
-import java.net.ServerSocket
+import java.net.{InetAddress, ServerSocket}
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
@@ -26,7 +26,7 @@ object Boot extends App {
   val service = system.actorOf(Props[HttpServiceActor], "demo-service")
   val serviceRegistry = system.actorOf(Props[ServiceRegistryActor], "service-registry")
 
-  val host = "localhost"
+  val host = InetAddress.getLocalHost.getHostName
   val port = findAvailablePort()
 
   implicit val timeout = Timeout(15.seconds)

@@ -12,11 +12,16 @@ class HttpServiceActor extends Actor with HttpService {
   def httpRoute(dbUrl: Option[String]) =
     pathSuffix("") {
       get {
-        respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
+        val message =  dbUrl match {
+          case Some(url) => s"OK. Http service configured with db url: $url"
+          case _ => "Http service is not configured with db url"
+        }
+
+        respondWithMediaType(`text/html`) {
           complete {
             <html>
               <body>
-                <h1>OK. Http service with db url: {dbUrl}</h1>
+                <h1>{message}</h1>
               </body>
             </html>
           }

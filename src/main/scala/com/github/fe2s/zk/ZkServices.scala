@@ -51,7 +51,7 @@ object ZkServices {
     val foundClient = clients.find { clientId =>
       val slots = new String(zk.getData.forPath(new AppServerSlotsPath(clientId))).toInt
       val appServersNumber = findClientAppServersIds(clientId).size
-      println(s"client $clientId slots $slots appServersNumber $appServersNumber")
+      println(s"client $clientId slots: $slots occupied: $appServersNumber")
       slots > appServersNumber
     }
 
