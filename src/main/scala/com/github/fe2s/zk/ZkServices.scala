@@ -33,7 +33,7 @@ object ZkServices {
 
     (1 to Config.clientsNumber) map { id =>
       val clientId = s"client-$id"
-      val appServerSlots = Random.nextInt(Config.maxAppServerSlots)
+      val appServerSlots = Random.nextInt(Config.maxAppServerSlots) + 1
       zkCreate.forPath(new AppServerSlotsPath(clientId), appServerSlots.toString.getBytes)
 
       val dbUrl = s"jdbc://db-client-$id:5555"

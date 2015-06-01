@@ -6,7 +6,7 @@ package com.github.fe2s
 object Config {
 
   val clientsNumber = 6
-  val maxAppServerSlots = 2
+  val maxAppServerSlots = 3
   val zkConnectString = "localhost:2181"
 
   val haproxyConfFile = "/Users/fe2s/Projects/zk-tenant/haproxy/haproxy.conf"

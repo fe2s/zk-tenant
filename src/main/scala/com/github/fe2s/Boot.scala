@@ -28,7 +28,6 @@ object Boot extends App {
 
   val host = "localhost"
   val port = findAvailablePort()
-//  val port = 8082
 
   implicit val timeout = Timeout(15.seconds)
 
@@ -44,7 +43,6 @@ object Boot extends App {
 
   for (dbUrlOpt <- dbUrlFuture.mapTo[Option[String]]) yield {
     for (dbUrl <- dbUrlOpt) yield {
-      println("sending dbUrl " + dbUrl)
       service ! HttpServiceConfig(dbUrl)
     }
   }
